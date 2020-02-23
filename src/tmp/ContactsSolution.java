@@ -1,12 +1,16 @@
 package tmp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
-import static java.lang.System.*;
+import static java.lang.System.arraycopy;
+import static java.lang.System.in;
+import static java.lang.System.out;
 
-public class Solution {
+public class ContactsSolution {
 
     static final String ADD = "add";
     static final String FIND = "find";
@@ -14,16 +18,17 @@ public class Solution {
     static int[] contacts(String[][] queries) {
 
         List<Integer> found = new ArrayList<>();
-        List<String> contacts = new ArrayList<>();
+        //List<String> contacts = new ArrayList<>();
+        Map<Character, List<String>> contacts = new HashMap<>();
 
-        for(String[] query: queries){
+        for (String[] query : queries) {
             String op = query[0];
             String name = getName(query);
-            if(op.equals(ADD)){
-                addSorted(contacts, name);
-            }
-            else if(op.equals(FIND)){
-                found.add(numberOfMatchingContacts(contacts, name));
+            if (op.equals(ADD)) {
+                contacts.computeIfAbsent(name.charAt(0), k -> new ArrayList<>());
+                addSorted(contacts.get(name.charAt(0)), name);
+            } else if (op.equals(FIND)) {
+                found.add(numberOfMatchingContacts(contacts.get(name.charAt(0)), name));
             }
         }
         return found.stream().mapToInt(i->i).toArray();
@@ -86,19 +91,21 @@ public class Solution {
     }
 
     private static int binaryMatch(List<String> strings, String partial) {
+        if (strings == null)
+            return 0;
+
         int lower = 0;
-        int upper = strings.size()-1;
+        int upper = strings.size() - 1;
         int index = findPositionFor(strings, partial);
 
         int matched = 0;
-        if(index != -1){
+        if (index != -1) {
             //count matched
-            while(index < strings.size()){
-                if(strings.get(index).matches(partial + ".*")){
-                    matched ++;
-                    index ++;
-                }
-                else
+            while (index < strings.size()) {
+                if (strings.get(index).matches(partial + ".*")) {
+                    matched++;
+                    index++;
+                } else
                     break;
             }
         }
